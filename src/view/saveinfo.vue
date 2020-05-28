@@ -1,0 +1,417 @@
+<template>
+  <div class="feedback-wrap">
+    <section class="fb-user-con">
+      <div class="user-box2 flex start">
+         <div class="choose-box">
+          <span>参保人姓名：</span>
+          <span>{{userInfo.name}}</span>
+        </div>
+      </div>
+      <div class="user-box2 flex start">
+         <div class="choose-box">
+          <span>身份证号码：</span>
+          <span>{{userInfo.idcard}}</span>
+        </div>
+      </div>
+      <div class="user-box2 flex start">
+         <div class="choose-box">
+          <span>出身日期：</span>
+          <span>{{userInfo.birth}}</span>
+        </div>
+      </div>
+      <div class="user-box2 flex start">
+         <div class="choose-box">
+          <span>性别：</span>
+          <span>{{userInfo.sex}}</span>
+        </div>
+      </div>
+      <div class="user-box2 flex start">
+         <div class="choose-box">
+          <span>手机号码：</span>
+          <span>
+            <input placeholder="请输入手机号码" type="tel" v-model="phone" maxlength="11">
+          </span>
+        </div>
+      </div>
+      <div class="user-box2 flex start">
+         <div class="choose-box">
+          <span>推荐人：</span>
+          <span>
+            <input placeholder="请输入推荐人姓名(选填)" type="text" v-model="refereeName">
+          </span>
+        </div>
+      </div>
+      <div class="user-box2 flex start">
+         <div class="choose-box">
+          <span>推荐人手机：</span>
+          <span>
+            <input placeholder="请输入推荐人手机(选填)" type="tel" v-model="refereeMobile" maxlength="11">
+          </span>
+        </div>
+      </div>
+      <div class="user-box2 flex" @click="showOpinionDlg">
+        <div class="choose-box flex-b">
+          <span>户籍：</span>
+          <span class="text-right">{{city}}</span>
+        </div>
+      </div>
+      <div class="user-box2 flex" @click="showOpinionDlg2">
+         <div class="choose-box flex-b">
+          <span>个人身份：</span>
+          <span class="text-right">{{type}}</span>
+        </div>
+      </div>
+      <div class="user-box2 flex" @click="showOpinionDlg3">
+         <div class="choose-box flex-b">
+          <span>学历</span>
+          <span class="text-right">{{grade}}</span>
+        </div>
+      </div>
+      <div class="btn-box">
+        <mt-button class="btn-submit" type="primary" size="large" @click="submit">保存</mt-button>
+      </div>
+      <div class="picker-wrap" v-show="showCity">
+        <transition name="slide-down">
+          <div class="picker-cnt">
+            <div class="txt-btn-wrap">
+            <span class="txt-btn cancel" @click="hideOpinion">取消</span>
+            <span class="txt-btn ok" @click="cnfrmOpinion">确认</span>
+          </div>
+            <mt-picker :slots="options1" @change="onOpinionChange" :visible-item-count="5"></mt-picker>
+          </div>
+        </transition>
+      </div>
+      <div class="picker-wrap" v-show="showType">
+        <transition name="slide-down">
+          <div class="picker-cnt">
+            <div class="txt-btn-wrap">
+            <span class="txt-btn cancel" @click="hideOpinion2">取消</span>
+            <span class="txt-btn ok" @click="cnfrmOpinion2">确认</span>
+          </div>
+            <mt-picker :slots="options2" @change="onOpinionChange2" :visible-item-count="5"></mt-picker>
+          </div>
+        </transition>
+      </div>
+      <div class="picker-wrap" v-show="showGrade">
+        <transition name="slide-down">
+          <div class="picker-cnt">
+            <div class="txt-btn-wrap">
+            <span class="txt-btn cancel" @click="hideOpinion3">取消</span>
+            <span class="txt-btn ok" @click="cnfrmOpinion3">确认</span>
+          </div>
+            <mt-picker :slots="options3" @change="onOpinionChange3" :visible-item-count="5"></mt-picker>
+          </div>
+        </transition>
+      </div>
+    </section>
+    <bottom></bottom>
+  </div>
+</template>
+
+<script>
+import bottom from '@/components/bottom'
+import { getParams } from '@/utils/common'
+import { Indicator, Toast } from 'mint-ui'
+import { mapState, mapMutations } from 'vuex'
+import store from '@/store/'
+import { User } from '@/apis/'
+export default {
+  components: {bottom},
+  data () {
+    return {
+      phone: '',
+      content: '',
+      imgList: [], // 已上传的图片集合
+      isSubmit: false,
+      city: '',
+      type: '',
+      grade: '',
+      options1: [
+        {
+          flex: 1,
+          values: []
+        }
+      ],
+      options2: [
+        {
+          flex: 1,
+          values: []
+        }
+      ],
+      options3: [
+        {
+          flex: 1,
+          values: []
+        }
+      ],
+      showCity: !1,
+      showType: !1,
+      showGrade: !1,
+      dataInfo: {
+        insured_base: 2200,
+        house_base: 2200,
+        house_scale: '企业比例：5%，个人比例：5%'
+      },
+      refereeName: '',
+      refereeMobile: '',
+      belong: [],
+      education: [],
+      identity: [],
+      cityId: '',
+      identityId: '',
+      educationId: '',
+    }
+  },
+  computed: {
+    ...mapState({
+      userInfo: state => state.user.userInfo
+    })
+  },
+  methods: {
+    submit () {
+      if(!this.phone){
+        Toast('请填写手机号码')
+        return
+      }
+      const mobileExp = /1\d{10}/
+      if(!mobileExp.test(this.phone)){
+        Toast('请填写正确的手机号码')
+        return
+      }
+      if(this.refereeMobile && !mobileExp.test(this.refereeMobile)){
+        Toast('请填写正确的推荐人手机号码')
+        return
+      }
+      if (this.city == '' || this.city == '请选择户籍') {
+        Toast('请选择户籍！')
+        return
+      }
+      if (this.type == '' || this.type == '请选择个人身份') {
+        Toast('请选择个人身份')
+        return
+      }
+      if (this.grade == '' || this.grade == '请选择学历') {
+        Toast('请选择学历')
+        return
+      }
+      const data = {
+        insured_name: this.userInfo.name,
+        idcard: this.userInfo.idcard,
+        mobile: this.phone,
+        sex: this.userInfo.sex,
+        referee_name: this.refereeName,
+        referee_mobile: this.refereeMobile,
+        city_id: this.userInfo.city_id,
+        gear_id: this.userInfo.gear_id,
+        is_house: this.userInfo.is_house,
+        belong_id: this.belongId,
+        identity_id: this.identityId,
+        education_id: this.educationId
+      }
+      User.addInsured(data).then(res => {
+        if(res.code == 1){
+          Toast('添加成功')
+          setTimeout(() => {
+            this.$router.push({
+              path: '/insurance'
+            })
+          }, 2000);
+        }else{
+          Toast(res.msg)
+        }
+      })
+    },
+    showOpinionDlg () {
+      this.showCity = !0
+    },
+    onOpinionChange (picker, values) {
+      this.city = values[0]
+      this.belong.map(item => {
+        if(item.belong_name == values[0]){
+          this.belongId = item.id
+        }
+      })
+    },
+    hideOpinion () {
+      this.showCity = !1
+    },
+    cnfrmOpinion () {
+      this.showCity = !1
+    },
+    showOpinionDlg2 () {
+      this.showType = !0
+    },
+    onOpinionChange2 (picker, values) {
+      this.type = values[0]
+      this.identity.map(item => {
+        if(item.identity_name == values[0]){
+          this.identityId = item.id
+        }
+      })
+    },
+    hideOpinion2 () {
+      this.showType = !1
+    },
+    cnfrmOpinion2 () {
+      this.showType = !1
+    },
+    showOpinionDlg3 () {
+      this.showGrade = !0
+    },
+    onOpinionChange3 (picker, values) {
+      this.grade = values[0]
+      this.education.map(item => {
+        if(item.ed_name == values[0]){
+          this.educationId = item.id
+        }
+      })
+    },
+    hideOpinion3 () {
+      this.showGrade = !1
+    },
+    cnfrmOpinion3 () {
+      this.showGrade = !1
+    },
+    renderData(data) {
+
+    }
+  },
+  mounted () {
+    User.getComCat().then(res => {
+      Indicator.close()
+      if(res.code == 1){
+        this.belong = res.data.belong
+        let arr1 = this.belong.map(item => {
+          return item.belong_name
+        })
+        this.options1[0].values = ['请选择户籍', ...arr1]
+        this.identity = res.data.identity
+        let arr2 = this.identity.map(item => {
+          return item.identity_name
+        })
+        this.options2[0].values = ['请选择个人身份', ...arr2]
+        this.education = res.data.education
+        let arr3 = this.education.map(item => {
+          return item.ed_name
+        })
+        this.options3[0].values = ['请选择学历', ...arr3]
+      }
+    })
+  }
+}
+</script>
+<style lang="scss">
+$main-color: #ef4f4f;
+.feedback-wrap{
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: #f0f0f0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1;
+}
+.fb-user-con{
+  margin-bottom: 1.2rem;
+  font-size: .3rem;
+  background-color: #fff;
+  .user-box1{
+    width: 7.3rem;
+    padding: .4rem 0 .6rem;
+    text-align: center;
+    img{
+      width: 2rem;
+      height: 2rem;
+      margin-bottom: .2rem;
+    }
+  }
+  .user-box2{
+    width: 6.9rem;
+    margin: auto;
+    padding: .3rem;
+    .choose-box{
+      width: 100%;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      .text-right{
+        padding-right: .6rem;
+        background: url(../assets/images/arrow-right.png) center right no-repeat;
+        background-size: .4rem;
+      }
+    }
+    .flex-b{
+      justify-content: space-between;
+    }
+  }
+  .start{
+    .choose-box{
+      justify-content: start;
+      span:first-child{
+        width: 2rem;
+      }
+    }
+  }
+}
+
+.btn-box{
+  padding: .2rem 0;
+}
+.btn-submit{
+  width: 6.8rem;
+  margin: auto;
+}
+
+.picker-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, .5);
+  .picker-cnt {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    z-index: 1000;
+    .txt-btn-wrap {
+      display: flex;
+      height: 100%;
+      padding: .2rem 0.3rem;
+      border-bottom: 1px solid #eaeaea;
+    }
+    .txt-btn {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      font-size: 0.28rem;
+      &.ok {
+        color: #f60;
+        justify-content: flex-end;
+      }
+      &.tit {
+        justify-content: center;
+      }
+    }
+  }
+  .picker-bg {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+}
+.slide-down-enter-active, .slide-down-leave-active {
+  transition: all 0.3s linear;
+}
+.slide-down-enter, .slide-down-leave-to {
+  transform: translate3d(0, 100%, 0);
+}
+</style>

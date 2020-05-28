@@ -1,0 +1,38 @@
+/* $color-primary: #05AFAF;
+$color-btn: #f60;
+$color-disabled: #DBDBDB; */
+.mint-cell-wrapper, .mint-tabbar, .mint-cell:last-child{
+    background-image: none;
+}
+.mint-tab-item-label{
+    font-size: .3rem;
+}
+.mint-navbar .mint-tab-item.is-selected{
+    margin-bottom: 0;
+}
+.mint-cell-wrapper{
+    font-size: .3rem;
+}
+.mint-tab-item-label{
+    font-size: .28rem;
+}
+.font-3 .mint-cell-title{
+    width: 91px;
+}
+.mint-tabbar.is-fixed{
+    z-index: 100;
+}
+mt-tab-item img{
+    pointer-events: none;
+}
+.mint-header{
+    background: #56D674;
+    color: #fff;
+}
+.mint-button--primary{
+    background: #56D674;  
+}
+.mint-switch-input:checked + .mint-switch-core {
+    border-color: #56D674;
+    background-color: #56D674;
+}

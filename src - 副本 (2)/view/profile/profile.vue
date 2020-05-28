@@ -1,0 +1,505 @@
+<template>
+  <div class="profile-wrap">
+    <section class="user-con">
+      <div class="avatar-item">
+        <span class="left-label">&nbsp;&nbsp;头像</span>
+        <div>
+          <img :src="userInfo && userInfo.avatar" alt>
+          <i></i>
+        </div>
+        <input type="file" class="file-inp" accept="image/*" @change="uploadImg($event)">
+      </div>
+      <div class="ht21"></div>
+      <div class="list-box" @click="navTo('username', userInfo.nickname)">
+        <div class="left-label">昵称<span class="text-right">{{userInfo.nickname}}</span></div>
+      </div>
+      <div class="ht21"></div>
+      <div class="list-box" @click="navTo('signature', userInfo.introduction)">
+        <div class="left-label">个性签名<span class="text-right">{{userInfo.introduction}}</span></div>
+      </div>
+      <div class="ht21"></div>
+      <div class="list-box" @click="navTo('hobby', userInfo.interest)">
+        <div class="left-label">兴趣爱好</div>
+      </div>
+      <div class="ht21"></div>
+      <div class="list-box" @click="showCityDlg">
+        <div class="left-label">地区<span class="text-right">{{city}}</span></div>
+      </div>
+      <div class="ht21"></div>
+      <div class="list-box" @click="toMyGift">
+        <div class="left-label">我的礼物</div>
+      </div>
+      <div class="ht21"></div>
+      <div class="list-box" @click="toFeedback">
+        <div class="left-label">意见反馈</div>
+      </div>
+      <div class="picker-wrap" v-show="showCity">
+        <transition name="slide-down">
+          <div class="picker-cnt">
+            <div class="txt-btn-wrap">
+              <span class="txt-btn cancel" @click="hideCityDlg">取消</span>
+              <span class="txt-btn ok" @click="cnfrmAddrArea">确认</span>
+            </div>
+            <mt-picker :slots="addressSlots" @change="onAddressChange" :visible-item-count="5"></mt-picker>
+          </div>
+        </transition>
+      </div>
+    </section>
+    <div class="cropper-wrap" v-show="showCropper">
+      <vueCropper
+          ref="cropper"
+          :img="imgOption.img"
+          :autoCrop="imgOption.autoCrop"
+          :autoCropWidth="imgOption.autoCropWidth"
+          :autoCropHeight="imgOption.autoCropHeight"
+          :fixedBox="imgOption.fixedBox"
+          :canMoveBox="imgOption.canMoveBox"
+          :full="imgOption.full"
+          :canScale="imgOption.canScale"
+      ></vueCropper>
+      <div class="btn cancel-btn" @click="cancel">取消</div>
+      <div class="btn ok-btn" @click="saveAvatar">使用</div>
+    </div>
+    <bottom></bottom>
+    <transition name="slide">
+      <router-view></router-view>
+    </transition>
+  </div>
+</template>
+
+<script>
+import { VueCropper } from 'vue-cropper'
+import EXIF from 'exif-js'
+import { compressImg, dataURLtoBlob } from '@/utils/imageManage'
+import { Indicator, Toast } from 'mint-ui'
+import bottom from '@/components/bottom'
+import address from '@/utils/city'
+import { mapState, mapMutations } from 'vuex'
+import store from '@/store/'
+const MAX_NUM = 5
+const MAX_IMG_SIZE = MAX_NUM * 1024 * 1024
+export default {
+  components: {bottom, VueCropper},
+  data () {
+    return {
+      isShow: !1,
+      preImgIsLoading: !0,
+      city: '',
+      addressSlots: [
+        {
+          flex: 1,
+          values: Object.keys(address),
+          textAlign: 'center'
+        }, {
+          divider: true,
+          content: '-'
+        }, {
+          flex: 1,
+          values: ['北京'],
+          textAlign: 'center'
+        }
+      ],
+      addressProvince: '北京',
+      addressCity: '北京',
+      showCity: !1,
+      showCropper: !1,
+      imgOption: {
+        img: '',
+        autoCrop: true,
+        autoCropWidth: window.innerWidth,
+        autoCropHeight: window.innerWidth,
+        fixedBox: true,
+        canMoveBox: false,
+        full: true,
+        canScale: true
+      },
+      upImgName: ''
+    }
+  },
+  computed: {
+    ...mapState({
+      userInfo: state => state.user.userInfo
+    })
+  },
+  methods: {
+    ...mapMutations(['SAVE_USERINFO']),
+    uploadImg (e) {
+      Indicator.open('加载中...')
+      // 上传图片
+      let file = e.target.files[0]
+      this.upImgName = file.name
+      let self = this
+      if (file.size > MAX_IMG_SIZE) {
+        Indicator.close()
+        Toast('图片不能大于' + MAX_NUM + 'M')
+        return
+      }
+
+      let orientation = 0
+      EXIF.getData(file, function () {
+        EXIF.getAllTags(this)
+        orientation = EXIF.getTag(this, 'Orientation')
+      })
+      let quality = 0.1
+      let reader = new FileReader()
+      reader.onload = (e) => {
+        let img = new Image()
+        let result = e.target.result
+        img.addEventListener('load', callback, false)
+        img.src = result
+        function callback (e) {
+          let newData = compressImg(img, {orientation, quality}) // 压图
+          self.showCropper = !0
+          self.imgOption.img = newData
+          setTimeout(() => {
+            Indicator.close()
+          }, 0)
+        }
+      }
+      reader.readAsDataURL(file)
+    },
+    saveAvatar () {
+      let token = localStorage.getItem('token')
+      Indicator.open('保存中...')
+      this.cancel()
+      let self = this
+      let imageData = new FormData()
+      this.$refs.cropper.getCropData((data) => {
+        // 获取图片的 Orientation
+        let orientation = 0
+        EXIF.getData(data, function () {
+          EXIF.getAllTags(this)
+          orientation = EXIF.getTag(this, 'Orientation')
+        })
+        let quality = 0.1
+        // do something
+        let img = new Image()
+        img.addEventListener('load', callback, false)
+        img.src = data
+        function callback (e) {
+          let newData = compressImg(img, {orientation, quality}) // 压图
+          let blob = dataURLtoBlob(newData) // 转为Blob对象
+          imageData.append('imagefile', blob, self.upImgName)
+
+          self.$post('/file/uploadImage', imageData).then(res => {
+            Indicator.close()
+            img = null
+            if (res.ret === 0) {
+              let url = res.data[0].url
+              Indicator.open('保存中...')
+              self.$post('/user/modify?APP-Token=' + token, {avatar: url}).then(res => {
+                Indicator.close()
+                Toast(res.msg)
+                if (res.ret == 0) {
+                  setTimeout(() => {
+                    self.$router.go(0)
+                  }, 2000)
+                }
+              })
+            }
+          })
+        }
+      })
+    },
+    cancel () {
+      document.querySelector('.file-inp').value = ''
+      this.showCropper = !1
+    },
+    // uploadImg (e) {
+    //   let token = localStorage.getItem('token')
+    //   let file = e.currentTarget.files[0]
+    //   if (file.size > 3 * 1024 * 1024) {
+    //     Toast('图片大小不能超过3M')
+    //     return
+    //   }
+    //   let imageData = new FormData()
+    //   imageData.append('file', file)
+    //   // 上传图片
+    //   Indicator.open('上传中')
+    //   this.$post('/file/uploadImage?APP-Token=' + token, imageData).then(res => {
+    //     Indicator.close()
+    //     if (res.ret === 0) {
+    //       let url = res.data[0].url
+    //       Indicator.open('保存中...')
+    //       this.$post('/user/modify?APP-Token=' + token, {avatar: url}).then(res => {
+    //         Indicator.close()
+    //         Toast(res.msg)
+    //         if (res.ret == 0) {
+    //           setTimeout(() => {
+    //             this.$router.go(0)
+    //           }, 2000)
+    //           // this.init()
+    //         }
+    //       })
+    //     }
+    //   })
+    // },
+    navTo (type = '', text = '') {
+      this.$router.push({
+        path: `/profile/${type}?text=${encodeURIComponent(text)}`
+      })
+    },
+    toMyGift () {
+      this.$router.push({
+        path: '/mygift'
+      })
+    },
+    toFeedback () {
+      this.$router.push({
+        path: '/feedback'
+      })
+    },
+    showCityDlg () {
+      this.showCity = !0
+    },
+    onAddressChange (picker, values) {
+      picker.setSlotValues(1, address[values[0]])
+      this.addressProvince = values[0]
+      this.addressCity = values[1]
+    },
+    hideCityDlg () {
+      this.showCity = !1
+    },
+    cnfrmAddrArea () {
+      this.showCity = !1
+      this.city = this.addressCity
+      Indicator.open('保存中...')
+      let token = localStorage.getItem('token')
+      this.$post('/user/modify?APP-Token=' + token, {location: this.city}).then(res => {
+        Indicator.close()
+        Toast(res.msg)
+      })
+    },
+    // 获取个人信息
+    init () {
+      if (this.userInfo.id) {
+        this.city = this.userInfo.location
+        return
+      }
+      let token = localStorage.getItem('token')
+      this.$get('/user/myInfo', {'APP-Token': token}).then(res => {
+        if (res.ret === 0) {
+          this.city = res.data.baseInfo.location
+          store.commit('SAVE_USERINFO', res.data.baseInfo)
+          store.commit('SAVE_COUNTINFO', res.data.account)
+        }
+      })
+    }
+  },
+  mounted () {
+    this.init()
+    // 隐藏微信工具栏
+    // 隐藏微信工具栏
+    // function onBridgeReady () {
+    //   WeixinJSBridge.call('hideOptionMenu')
+    //   WeixinJSBridge.call('hideToolbar')
+    // }
+    //
+    // if (typeof WeixinJSBridge == 'undefined') {
+    //   if (document.addEventListener) {
+    //     document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false)
+    //   } else if (document.attachEvent) {
+    //     document.attachEvent('WeixinJSBridgeReady', onBridgeReady)
+    //     document.attachEvent('onWeixinJSBridgeReady', onBridgeReady)
+    //   }
+    // } else {
+    //   onBridgeReady()
+    // }
+  }
+}
+</script>
+<style lang="scss">
+.vue-cropper {
+  background: #000!important;
+}
+.left-label{
+  color: #ffffff;
+}
+.cropper-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 999;
+  font-size: .32rem;
+  .btn {
+    position: absolute;
+    bottom: .32rem;
+    color: #fff;
+  }
+  .cancel-btn {
+    left: .32rem
+  }
+  .ok-btn {
+    right: .32rem
+  }
+}
+.crop-info {
+  display: none;
+}
+
+.profile-wrap{
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  overflow: auto;
+  overflow-x: hidden;
+  background: url(../../assets/images/chatbg.png) no-repeat;
+  background-size: cover;
+}
+.user-con{
+  padding: 0;
+  margin-bottom: 1.2rem;
+  font-size: .3rem;
+  background: url(../../assets/images/chatbg.png) no-repeat;
+  background-size: cover;
+  .user-box1{
+    width: 7.3rem;
+    padding: .4rem 0 .6rem;
+    text-align: center;
+    img{
+      width: 2rem;
+      height: 2rem;
+      margin-bottom: .2rem;
+    }
+  }
+  .list-box{
+    margin-right: .2rem;
+    padding: .4rem .2rem;
+    background: url(../../assets/images/list-icon.png) right center no-repeat;
+    background-size: .16rem .26rem;
+    div{
+      overflow: hidden;
+      padding: 0 .2rem;
+      .text-right{
+        float: right;
+        display: block;
+        width: 3rem;
+        height: .4rem;
+        overflow: hidden;
+        text-overflow:ellipsis;
+        white-space: nowrap;
+        text-align: right;
+      }
+      .text-right-img{
+        float: right;
+        height: .8rem;
+      }
+    }
+    .flex{
+      justify-content: space-between;
+      span{
+        line-height: .8rem;
+      }
+    }
+  }
+  .list-box1{
+    padding: .2rem;
+  }
+  .ht21{
+    width: 7.5rem;
+    height: 0.03rem;
+    background: #ebe9f0;
+    opacity: 0.7;
+  }
+  .avatar-item {
+    position: relative;
+    height: 1.28rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .2rem .2rem .2rem .2rem;
+    box-sizing: border-box;
+    div {
+      display: flex;
+      align-items: center;
+    }
+    i {
+      display: block;
+      width: 0.16rem;
+      height: 0.26rem;
+      margin-left: 0.2rem;
+      background: url(../../assets/images/list-icon.png) right center no-repeat;
+      background-size: .16rem .26rem;
+    }
+    span {
+      flex: 1;
+      font-size: 0.3rem;
+      line-height: .8rem;
+    }
+    p {
+      color: #666;
+      font-size: 0.28rem;
+      line-height: 1;
+    }
+    img {
+      height: .8rem;
+      vertical-align: middle;
+    }
+    .file-inp {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+    }
+  }
+}
+
+.picker-wrap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, .5);
+  .picker-cnt {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    z-index: 1000;
+    .txt-btn-wrap {
+      display: flex;
+      height: 100%;
+      padding: .2rem 0.3rem;
+      border-bottom: 1px solid #eaeaea;
+    }
+    .txt-btn {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      font-size: 0.28rem;
+      &.ok {
+        color: #f60;
+        justify-content: flex-end;
+      }
+      &.tit {
+        justify-content: center;
+      }
+    }
+  }
+  .picker-bg {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+}
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.3s linear;
+}
+.slide-down-enter,
+.slide-down-leave-to {
+  transform: translate3d(0, 100%, 0);
+}
+</style>
