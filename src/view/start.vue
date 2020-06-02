@@ -4,6 +4,7 @@
 <script>
 import { Indicator } from 'mint-ui'
 import {getQueryParam} from '@/utils/common'
+import { User } from '@/apis/'
 export default {
   data () {
     return {
@@ -22,34 +23,21 @@ export default {
   mounted () {
     let qs = getQueryParam(location.href)
     const code = qs('code')
-    const state = qs('state')
     if (!code) {
-      window.location.href = 'https://webapi.hnjmnet.com/api/wechat/user/authorize'
-      // window.location.href = 'http://vin.free.idcfengye.com/api/wechat/user/authorize'
+      User.login().then(res => {
+        if (res.code == 1) {
+          location.href = res.data
+        }
+      })
     } else {
-      this.$get('/wechat/user/callback', {
-        code,
-        state
+      this.$get('https://ybb.nmroom.cn/auth.php', {
+        code
       }).then(res => {
-        if (res.ret === 0) {
-          localStorage.setItem('openId', res.data.openId)
-          localStorage.setItem('wxUser', res.data)
-          if (res.data.newUser) {
-            this.$store.commit('SAVE_USERINFO', Object.assign({}, {nickname: res.data.nickName}))
-            this.$router.push({
-              path: './user'
-            })
-          } else {
-            if (res.data.userInfo) {
-              this.$store.commit('SAVE_USERINFO', res.data.userInfo)
-            }
-            localStorage.setItem('token', res.data.token)
-            this.$router.push({
-              path: './index'
-            })
-          }
-          // {ret:0,data:{newUser:true,openId:ss,nickName:ee,headImgUrl:sss}}
-          // {ret:0,data:{newUser:false,openId:ss,token:ee,userInfo:{id:eee,...}}}
+        if (res.code == 1) {
+          localStorage.setItem('token', res.data.token)
+          this.$router.push({
+            path: './index'
+          })
         }
       })
     }

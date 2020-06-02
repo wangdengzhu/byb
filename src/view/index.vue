@@ -80,48 +80,48 @@
 </template>
 
 <script>
-    import Vue from 'vue'
-    import bottom from '@/components/bottom'
-    import store from '@/store/'
-    import {mapState, mapMutations} from 'vuex'
-    import {Indicator, Toast, MessageBox, Swipe, SwipeItem} from 'mint-ui'
-    import { User } from '@/apis/'
-    export default {
-      components: {bottom},
-      data() {
-          return {
-            banner: [],
-            policy: [],
-            company: {}
-          }
-      },
-      methods: {
-          ...mapMutations(['SAVE_USERINFO', 'SAVE_BARINFO']),
-        navDetail(id) {
-          this.$router.push({
-            path: `/article?id=${id}`
-          })
-        }
-      },
-      created(){
-        User.login().then(res => {
-          if(res.code == 1){
-            // location.href = res.data
-          }
-        })
-      },
-      mounted(){
-        Indicator.open()
-        User.getIndexInfo().then(res => {
-          Indicator.close()
-          if(res.code == 1){
-            this.banner = res.data.bananer
-            this.policy = res.data.policy
-            this.company = res.data.company
-          }
-        })
-      }
+import Vue from 'vue'
+import bottom from '@/components/bottom'
+import store from '@/store/'
+import {mapState, mapMutations} from 'vuex'
+import {Indicator, Toast, MessageBox, Swipe, SwipeItem} from 'mint-ui'
+import { User } from '@/apis/'
+export default {
+  components: {bottom},
+  data () {
+    return {
+      banner: [],
+      policy: [],
+      company: {}
     }
+  },
+  methods: {
+    ...mapMutations(['SAVE_USERINFO', 'SAVE_BARINFO']),
+    navDetail (id) {
+      this.$router.push({
+        path: `/article?id=${id}`
+      })
+    }
+  },
+  // created(){
+  //   User.login().then(res => {
+  //     if(res.code == 1){
+  //       // location.href = res.data
+  //     }
+  //   })
+  // },
+  mounted () {
+    Indicator.open()
+    User.getIndexInfo().then(res => {
+      Indicator.close()
+      if (res.code == 1) {
+        this.banner = res.data.bananer
+        this.policy = res.data.policy
+        this.company = res.data.company
+      }
+    })
+  }
+}
 </script>
 <style scoped lang="scss">
   [v-cloak] {
