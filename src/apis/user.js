@@ -52,6 +52,9 @@ const articleDetail = id => post('/api/index/articleDetail', {id})
 // 登录
 const login = id => post('/api/user/login')
 
+// 获取用户信息
+const getUserInfo = code => post('/api/user/getUserInfo', {code})
+
 export default {
   getIndexInfo,
   getInsuredList,
@@ -68,5 +71,6 @@ export default {
   orderPay,
   checkInsuredGear,
   articleDetail,
-  login
+  login,
+  getUserInfo
 }

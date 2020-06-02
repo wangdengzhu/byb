@@ -30,9 +30,7 @@ export default {
         }
       })
     } else {
-      this.$get('https://ybb.nmroom.cn/auth.php', {
-        code
-      }).then(res => {
+       User.getUserInfo(code).then(res => {
         if (res.code == 1) {
           localStorage.setItem('token', res.data.token)
           this.$router.push({

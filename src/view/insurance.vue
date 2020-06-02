@@ -210,8 +210,8 @@ input[type=checkbox],input[type=radio]{
         justify-content: space-around;
         .btn{
           font-size: .26rem;
-          width: 1rem;
-          height: 1rem;
+          width: 1.2rem;
+          height: 1.2rem;
           border-radius: 50%;
         }
       }
