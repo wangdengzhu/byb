@@ -36,11 +36,11 @@
         <div class="left-label">地区<span class="text-right">{{city}}</span></div>
       </div> -->
       <div class="ht20"></div>
-      <div class="list-box" @click="toMyGift">
+      <div class="list-box" @click="contact">
         <div class="left-label contact-i">联系我们</div>
       </div>
       <div class="ht21"></div>
-      <div class="list-box" @click="toFeedback">
+      <div class="list-box" @click="toQuestion">
         <div class="left-label question-i">常见问题</div>
       </div>
     </section>
@@ -53,13 +53,16 @@ import { Indicator, Toast } from 'mint-ui'
 import bottom from '@/components/bottom'
 import { mapState, mapMutations } from 'vuex'
 import store from '@/store/'
+import { Dialog } from 'vant';
 import { User } from '@/apis/'
+const phone = localStorage.getItem('phone')
 export default {
   components: {bottom},
   data () {
     return {
       userInfo: {},
-      orderCount: {}
+      orderCount: {},
+      phone: phone
     }
   },
   methods: {
@@ -69,20 +72,23 @@ export default {
         path: `/orderlist?status=${status}`
       })
     },
-    toMyGift () {
-      this.$router.push({
-        path: '/mygift'
-      })
+    contact () {
+      Dialog.alert({
+        title: '呼叫',
+        message: `<a href='tel:${this.phone}'>${this.phone}</a>`
+      }).then(() => {
+        // on close
+      });
     },
-    toFeedback () {
+    toQuestion () {
       this.$router.push({
-        path: '/feedback'
+        path: '/articlelist?id=4'
       })
     },
     // 获取个人信息
     init () {
       User.userIndex().then(res => {
-        if(res.code == 1){
+        if (res.code == 1) {
           this.userInfo = res.data.userInfo
           this.orderCount = res.data.orderCount
         }

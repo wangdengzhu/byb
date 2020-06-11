@@ -62,7 +62,7 @@
         <span>买社保流程</span>
         <img src="../assets/images/process.png" alt="">
       </div>
-      <div class="item">
+      <div class="item" @click="navList(4)">
         <span>常见问题</span>
         <img src="../assets/images/question-i.png" alt="">
       </div>
@@ -101,15 +101,13 @@ export default {
       this.$router.push({
         path: `/article?id=${id}`
       })
+    },
+    navList (id) {
+      this.$router.push({
+        path: `/articlelist?id=${id}`
+      })
     }
   },
-  // created(){
-  //   User.login().then(res => {
-  //     if(res.code == 1){
-  //       // location.href = res.data
-  //     }
-  //   })
-  // },
   mounted () {
     Indicator.open()
     User.getIndexInfo().then(res => {
@@ -118,6 +116,7 @@ export default {
         this.banner = res.data.bananer
         this.policy = res.data.policy
         this.company = res.data.company
+        localStorage.setItem('phone', this.company.company_telephone)
       }
     })
   }

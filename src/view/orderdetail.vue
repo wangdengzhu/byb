@@ -2,44 +2,44 @@
   <div class="orderdetail-wrap" v-if="pageLoad">
     <div class="item">
       <div class="tit">
-        <span>订单编号：{{orderNo}}</span>
-        <span>待付款</span>
+        <span>订单编号：{{dataInfo.order_no}}</span>
+        <span>{{statusDesc[dataInfo.order_status]}}</span>
       </div>
       <div class="ht20"></div>
       <div class="main">
         <div class="main-t">
-          <div>参保人：<span>{{orderInfo.insured_name}}</span></div>
-          <div>城市：<span>{{orderInfo.city_name}}</span></div>
+          <div>参保人：<span>{{dataInfo.insured_name}}</span></div>
+          <div>城市：<span>{{dataInfo.city_name}}</span></div>
         </div>
         <div class="list">
           <p>参保类型：</p>
-          <p>{{orderInfo.gear_name}}</p>
+          <p>{{dataInfo.gear_title}}</p>
         </div>
         <div class="list">
           <p>基数：</p>
-          <p>{{orderInfo.shebao}}</p>
+          <p>{{dataInfo.pension_base}}</p>
         </div>
         <div class="list">
           <p>公积金基数：</p>
-          <p>{{orderInfo.house}}</p>
+          <p>{{dataInfo.house_base}}</p>
         </div>
         <div class="list">
           <p>缴费套餐：</p>
-          <p>{{orderInfo.able_time}} <span class="red" @click="showpop">查看</span></p>
+          <p>{{dataInfo.able_time}} <span class="red" @click="showpop">查看</span></p>
         </div>
         <div class="list">
           <p>小计：</p>
-          <p>￥{{orderInfo.total}}元</p>
+          <p>￥{{dataInfo.total_price}}元</p>
         </div>
       </div>
       <div class="total">
         <div class="t-list">
           <p>订单金额：</p>
-          <p>￥{{orderInfo.total}}元</p>
+          <p>￥{{dataInfo.total_price}}元</p>
         </div>
         <div class="t-list">
           <p>实付金额：</p>
-          <p>￥{{orderInfo.total}}元</p>
+          <p>￥{{dataInfo.total_price}}元</p>
         </div>
       </div>
       <div class="btn">
@@ -47,7 +47,7 @@
         <div class="pay" @click="payNow">立即付款</div>
       </div>
     </div>
-    <fund ref="fund" :dataInfo="dataInfo" :orderInfo="orderInfo"></fund>
+    <fund ref="fund" :dataInfo="dataInfo"></fund>
   </div>
 </template>
 
@@ -64,8 +64,13 @@ export default {
       pageLoad: false,
       orderNo: '',
       orderId: 0,
-      orderInfo: {},
-      dataInfo: {}
+      dataInfo: {},
+      statusDesc: {
+        '10': '进行中',
+        '20': '取消',
+        '21': '待取消',
+        '30': '已完成'
+      }
     }
   },
   computed: {
@@ -80,46 +85,40 @@ export default {
         path: `/profile/${type}?text=${encodeURIComponent(text)}`
       })
     },
-    cancel() {
+    cancel () {
       MessageBox.confirm('确定取消订单吗?').then(action => {
         Indicator.open()
         User.cancelOrder(this.orderId).then(res => {
           Indicator.close()
-          if(res.code == 1){
+          if (res.code == 1) {
             Toast('取消成功')
             this.init()
           }
         })
       })
     },
-    payNow() {
+    payNow () {
       Indicator.open()
       User.orderPay(this.orderId).then(res => {
         Indicator.close()
-        if(res.code == 1){
-          
+        if (res.code == 1) {
+
         }
       })
     },
-    showpop(){
+    showpop () {
       this.$refs.fund.isShowPop = true
     },
-    init(){
+    init () {
       this.orderNo = ~~this.$route.query.orderNo
       this.orderId = ~~this.$route.query.orderId
       this.id = ~~this.$route.query.id
       Indicator.open()
-      User.insuredOrder(this.id).then(res => {
+      User.orderDetail(this.orderId).then(res => {
         this.pageLoad = true
         Indicator.close()
-        if(res.code == 1){
-          this.orderInfo = res.data
-        }
-      })
-      User.checkInsuredGear(this.orderId).then(res => {
-        Indicator.close()
-        if(res.code == 1){
-          this.dataInfo = res.data
+        if (res.code == 1 && res.data) {
+          this.dataInfo = res.data.detail
         }
       })
     }

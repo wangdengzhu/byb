@@ -159,7 +159,7 @@ export default {
       identity: [],
       cityId: '',
       identityId: '',
-      educationId: '',
+      educationId: ''
     }
   },
   computed: {
@@ -169,16 +169,16 @@ export default {
   },
   methods: {
     submit () {
-      if(!this.phone){
+      if (!this.phone) {
         Toast('请填写手机号码')
         return
       }
       const mobileExp = /1\d{10}/
-      if(!mobileExp.test(this.phone)){
+      if (!mobileExp.test(this.phone)) {
         Toast('请填写正确的手机号码')
         return
       }
-      if(this.refereeMobile && !mobileExp.test(this.refereeMobile)){
+      if (this.refereeMobile && !mobileExp.test(this.refereeMobile)) {
         Toast('请填写正确的推荐人手机号码')
         return
       }
@@ -209,14 +209,14 @@ export default {
         education_id: this.educationId
       }
       User.addInsured(data).then(res => {
-        if(res.code == 1){
+        if (res.code == 1) {
           Toast('添加成功')
           setTimeout(() => {
             this.$router.push({
               path: '/insurance'
             })
           }, 2000);
-        }else{
+        } else {
           Toast(res.msg)
         }
       })
@@ -227,7 +227,7 @@ export default {
     onOpinionChange (picker, values) {
       this.city = values[0]
       this.belong.map(item => {
-        if(item.belong_name == values[0]){
+        if (item.belong_name == values[0]) {
           this.belongId = item.id
         }
       })
@@ -244,7 +244,7 @@ export default {
     onOpinionChange2 (picker, values) {
       this.type = values[0]
       this.identity.map(item => {
-        if(item.identity_name == values[0]){
+        if (item.identity_name == values[0]) {
           this.identityId = item.id
         }
       })
@@ -261,7 +261,7 @@ export default {
     onOpinionChange3 (picker, values) {
       this.grade = values[0]
       this.education.map(item => {
-        if(item.ed_name == values[0]){
+        if (item.ed_name == values[0]) {
           this.educationId = item.id
         }
       })
@@ -272,14 +272,14 @@ export default {
     cnfrmOpinion3 () {
       this.showGrade = !1
     },
-    renderData(data) {
+    renderData (data) {
 
     }
   },
   mounted () {
     User.getComCat().then(res => {
       Indicator.close()
-      if(res.code == 1){
+      if (res.code == 1) {
         this.belong = res.data.belong
         let arr1 = this.belong.map(item => {
           return item.belong_name

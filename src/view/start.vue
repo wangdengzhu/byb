@@ -30,7 +30,7 @@ export default {
         }
       })
     } else {
-       User.getUserInfo(code).then(res => {
+      User.getUserInfo(code).then(res => {
         if (res.code == 1) {
           localStorage.setItem('token', res.data.token)
           this.$router.push({

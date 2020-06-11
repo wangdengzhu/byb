@@ -8,7 +8,7 @@
         <p class="center">上传身份证正面(人像面)</p>
       </div>
       <div class="user-box2">
-        <uploader @getFiles='getImageList1' @removeFiles='removeImage' cardType=2></uploader>
+        <uploader @getFiles='getImageList1' @removeFiles='removeImage1' cardType=2></uploader>
         <p class="center">上传身份证反面(国徽面)</p>
       </div>
       <div class="tips" style="padding-left: .42rem">拍摄时注意光线和教具，务必保持照片清晰</div>
@@ -34,7 +34,10 @@ export default {
       phone: '',
       content: '',
       imgList: [], // 已上传的图片集合
+      imgList1: [], // 已上传的图片集合
       isSubmit: false,
+      id_front: '', // 正面
+      id_back: '' // 反面
     }
   },
   computed: {
@@ -44,16 +47,37 @@ export default {
   },
   methods: {
     submit () {
-      if(this.imgList.length <= 0){
+      if (this.imgList.length <= 0 || this.imgList1.length <= 0) {
         Toast('请先上传身份证照片')
         return
       }
+      const data = {
+        id_front: this.id_front,
+        id_back: this.id_back
+      }
       Indicator.open('正在提交...')
-      setTimeout(() => {
-        this.$router.push({
-          path: '/saveinfo'
-        })
-      }, 1500);
+      User.checkIdcard(data).then(res => {
+        if (res.code == 1) {
+          const data = res.data
+          let obj = {
+            name: data.name,
+            sex: data.sex,
+            nation: data.nation,
+            birth: data.birth,
+            address: data.address,
+            idcard: data.idcard
+          }
+          store.commit('SAVE_USERINFO', Object.assign({}, this.userInfo, obj))
+          Toast('验证成功')
+          setTimeout(() => {
+            this.$router.push({
+              path: '/saveinfo'
+            })
+          }, 1500);
+        } else {
+          Toast('验证失败，请重新上传正确身份证照片')
+        }
+      })
     },
     getImageList (files) {
       this.$nextTick(() => {
@@ -63,43 +87,40 @@ export default {
           imageData.append('file', files[i].file)
         }
         // 上传图片
-        User.checkIdcard(imageData).then(res => {
+        User.uploadImg(imageData).then(res => {
           if (res.code === 1) {
-            const data = res.data
-            let obj = {
-              name: data.name,
-              sex: data.sex,
-              nation: data.nation,
-              birth: data.birth,
-              address: data.address,
-              idcard: data.idcard,
-            }
-            store.commit('SAVE_USERINFO', Object.assign({}, this.userInfo, obj))
+            this.id_front = res.data.file_path;
           } else {
-            let obj = {
-              name: '王老板1',
-              sex: '男',
-              nation: '汉族',
-              birth: '1900-2-1',
-              address: '北极',
-              idcard: 21233213243212121,
-            }
-            store.commit('SAVE_USERINFO', Object.assign({}, this.userInfo, obj))
-            Toast('验证失败，请重新上传正确身份证照片')
+            Toast('上传失败')
           }
         })
       })
     },
     getImageList1 (files) {
-      
+      this.$nextTick(() => {
+        let imageData = new FormData()
+        for (let i = 0, len = files.length; i < len; i++) {
+          this.imgList1.push(files[i].src.split('base64,')[1])
+          imageData.append('file', files[i].file)
+        }
+        // 上传图片
+        User.uploadImg(imageData).then(res => {
+          if (res.code === 1) {
+            this.id_back = res.data.id_back;
+          } else {
+            Toast('上传失败')
+          }
+        })
+      })
     },
     // 删除图片
     removeImage (index) {
       this.imgList.splice(index, 1)
+    },
+    // 删除图片
+    removeImage1 (index) {
+      this.imgList1.splice(index, 1)
     }
-  },
-  mounted () {
-    console.log(this.userInfo)
   }
 }
 </script>

@@ -6,15 +6,15 @@
       <div class="tr">
         <div class="list">
           <p>参保人</p>
-          <p>{{orderInfo.insured_name}}</p>
+          <p>{{dataInfo.insured_name}}</p>
         </div>
         <div class="list">
           <p>城市</p>
-          <p>{{orderInfo.city_name}}</p>
+          <p>{{dataInfo.city_name}}</p>
         </div>
         <div class="list">
           <p>基数</p>
-          <p>{{dataInfo.base}}</p>
+          <p>{{dataInfo.pension_base}}</p>
         </div>
         <div class="list">
           <p>公积金基数</p>
@@ -30,45 +30,45 @@
         </div>
         <div class="list">
           <p>基本医疗保险</p>
-          <p>{{dataInfo.medical_base}}</p>
-          <p>{{dataInfo.medical_personal}}</p>
-          <p>{{dataInfo.medical_company}}</p>
+          <p>{{dataInfo.medical_money}}</p>
+          <p>{{dataInfo.lose_personal_cate}}</p>
+          <p>{{dataInfo.lose_company_cate}}</p>
         </div>
         <div class="list">
           <p>生育保险</p>
-          <p>{{dataInfo.birth_base}}</p>
-          <p>{{dataInfo.birth_personal}}</p>
-          <p>{{dataInfo.birth_company}}</p>
+          <p>{{dataInfo.birth_money}}</p>
+          <p>{{dataInfo.birth_personal_cate}}</p>
+          <p>{{dataInfo.birth_company_cate}}</p>
         </div>
         <div class="list">
           <p>养老保险</p>
-          <p>{{dataInfo.pension_base}}</p>
-          <p>{{dataInfo.pension_base}}</p>
-          <p>{{dataInfo.pension_company}}</p>
+          <p>{{dataInfo.pension_money}}</p>
+          <p>{{dataInfo.pension_personal_cate}}</p>
+          <p>{{dataInfo.pension_company_cate}}</p>
         </div>
         <div class="list">
           <p>失业保险</p>
-          <p>{{dataInfo.lose_base}}</p>
-          <p>{{dataInfo.lose_personal}}</p>
-          <p>{{dataInfo.lose_company}}</p>
+          <p>{{dataInfo.lose_money}}</p>
+          <p>{{dataInfo.lose_personal_cate}}</p>
+          <p>{{dataInfo.lose_company_cate}}</p>
         </div>
         <div class="list">
           <p>工伤保险</p>
-          <p>{{dataInfo.injury_base}}</p>
-          <p>{{dataInfo.injury_personal}}</p>
-          <p>{{dataInfo.injury_company}}</p>
+          <p>{{dataInfo.injury_money}}</p>
+          <p>{{dataInfo.injury_personal_cate}}</p>
+          <p>{{dataInfo.injury_company_cate}}</p>
         </div>
         <div class="list">
           <p>残障金</p>
-          <p>{{dataInfo.disable_base}}</p>
-          <p>{{dataInfo.disable_personal}}</p>
-          <p>{{dataInfo.disable_company}}</p>
+          <p>{{dataInfo.disable_money}}</p>
+          <p>{{dataInfo.disable_personal_cate}}</p>
+          <p>{{dataInfo.disable_company_cate}}</p>
         </div>
         <div class="list">
           <p>合计</p>
           <p></p>
           <p></p>
-          <p>{{dataInfo.total}}/月</p>
+          <p>{{dataInfo.total_price}}/月</p>
         </div>
       </div>
       <div class="close" @click="close">关闭</div>
@@ -77,31 +77,26 @@
 </template>
 
 <script>
-import {Indicator, Toast, MessageBox} from 'mint-ui'
-import { User } from '@/apis/'
-  export default {
-    props: {
-      dataInfo: {
-        required: true
-      },
-      orderInfo: {
-        required: true
-      }
-    },
-    data () {
-      return {
-        isShowPop: false,
-      }
-    },
-    methods: {
-      close(){
-        this.isShowPop = false
-      }
-    },
-    mounted() {
-      
+export default {
+  props: {
+    dataInfo: {
+      required: true
     }
+  },
+  data () {
+    return {
+      isShowPop: false
+    }
+  },
+  methods: {
+    close () {
+      this.isShowPop = false
+    }
+  },
+  mounted () {
+
   }
+}
 </script>
 <style scoped lang="scss">
 $main-color: #ef4f4f;

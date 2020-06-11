@@ -2,28 +2,28 @@
   <div class="orderdetail-wrap">
     <div class="item">
       <div class="tit">
-        <span>订单编号：438i92483920483</span>
-        <span>待付款</span>
+        <span>订单编号：{{dataInfo.order_no}}</span>
+        <span>{{statusDesc[dataInfo.order_status]}}</span>
       </div>
       <div class="ht20"></div>
       <div class="main">
         <div class="main-t">
-          <div>参保人：<span>{{orderInfo.insured_name}}</span></div>
-          <div>城市：<span>{{orderInfo.city_name}}</span></div>
+          <div>参保人：<span>{{dataInfo.insured_name}}</span></div>
+          <div>城市：<span>{{dataInfo.city_name}}</span></div>
         </div>
         <div class="list">
           <p>缴费套餐：</p>
-          <p>{{orderInfo.able_time}} <span class="red" @click="showpop">查看</span></p>
+          <p>{{dataInfo.able_time}} <span class="red" @click="showpop">查看</span></p>
         </div>
       </div>
       <div class="total">
         <div class="t-list">
           <p>订单金额：</p>
-          <p>￥{{orderInfo.total}}元</p>
+          <p>￥{{dataInfo.total_price}}元</p>
         </div>
         <div class="t-list">
           <p>实付金额：</p>
-          <p>￥{{orderInfo.able_time}}元</p>
+          <p>￥{{dataInfo.total_price}}元</p>
         </div>
       </div>
       <div class="btn">
@@ -38,7 +38,7 @@
       </div>
       <span class="btn" @click="toPay">去支付</span>
     </div>
-    <fund ref="fund" :dataInfo="dataInfo" :orderInfo="orderInfo"></fund>
+    <fund ref="fund" :dataInfo="dataInfo"></fund>
   </div>
 </template>
 
@@ -47,14 +47,19 @@ import { User } from '@/apis/'
 import { Indicator, Toast } from 'mint-ui'
 import { mapState, mapMutations } from 'vuex'
 import fund from '@/components/fund.vue'
-import store from '@/store/'
+
 export default {
   components: { fund },
   data () {
     return {
       status: 0,
-      orderInfo: {},
-      dataInfo: {}
+      dataInfo: {},
+      statusDesc: {
+        '10': '进行中',
+        '20': '取消',
+        '21': '待取消',
+        '30': '已完成'
+      }
     }
   },
   computed: {
@@ -64,10 +69,10 @@ export default {
   },
   methods: {
     ...mapMutations(['SAVE_USERINFO']),
-    toPay(){
+    toPay () {
 
     },
-    showpop(){
+    showpop () {
       this.$refs.fund.isShowPop = true
     }
   },
@@ -76,16 +81,10 @@ export default {
     this.orderId = ~~this.$route.query.orderId
     this.id = ~~this.$route.query.id
     Indicator.open()
-    User.insuredOrder(this.id).then(res => {
+    User.orderDetail(this.orderId).then(res => {
       Indicator.close()
-      if(res.code == 1){
-        this.orderInfo = res.data
-      }
-    })
-    User.checkInsuredGear(this.orderId).then(res => {
-      Indicator.close()
-      if(res.code == 1){
-        this.dataInfo = res.data
+      if (res.code == 1 && res.data) {
+        this.dataInfo = res.data.detail
       }
     })
   }

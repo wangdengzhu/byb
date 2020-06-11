@@ -90,6 +90,13 @@ const router = new Router({
       title: '支付详情'
     }
   }, {
+    path: '/articlelist',
+    name: '文章列表',
+    component: () => import('@/view/articlelist'),
+    meta: {
+      title: '常见问题'
+    }
+  }, {
     path: '/article',
     name: '文章详情',
     component: () => import('@/view/article')

@@ -15,9 +15,6 @@ const getComCat = () => post('/api/insured/comCat')
 // 删除参保人
 const delInsured = id => post('/api/insured/delInsured', {id})
 
-// 上传身份证图片验证
-const checkIdcard = iFile => post('/api/insured/checkIdcard', {iFile})
-
 // 添加参保人
 const addInsured = data => post('/api/insured/addInsured', data)
 // 缺少返回参保id
@@ -46,8 +43,11 @@ const orderPay = order_id => post('/api/user.order/pay', {order_id})
 // 查看套餐具体收费情况
 const checkInsuredGear = order_id => post('/api/insured/checkInsuredGear', {order_id})
 
-// 获取文章内容
+// 获取文章列表
 const articleDetail = id => post('/api/index/articleDetail', {id})
+
+// 获取文章内容
+const articleList = id => post('/api/index/articleList', {id})
 
 // 登录
 const login = id => post('/api/user/login')
@@ -55,13 +55,21 @@ const login = id => post('/api/user/login')
 // 获取用户信息
 const getUserInfo = code => post('/api/user/getUserInfo', {code})
 
+// 上传身份证图片
+const uploadImg = iFile => post('/api/upload/image', {iFile})
+
+// 身份证图片验证
+const checkIdcard = data => post('/api/insured/checkIdcard', data)
+
+// 订单详情
+const orderDetail = order_id => post('/api/user.order/detail', {order_id})
+
 export default {
   getIndexInfo,
   getInsuredList,
   getEditInsured,
   getComCat,
   delInsured,
-  checkIdcard,
   addInsured,
   submitOrder,
   insuredOrder,
@@ -70,7 +78,11 @@ export default {
   cancelOrder,
   orderPay,
   checkInsuredGear,
+  articleList,
   articleDetail,
   login,
-  getUserInfo
+  getUserInfo,
+  checkIdcard,
+  uploadImg,
+  orderDetail
 }
