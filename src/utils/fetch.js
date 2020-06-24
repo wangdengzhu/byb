@@ -8,7 +8,8 @@ import axios from 'axios'
 import { Indicator, Toast } from 'mint-ui'
 
 // API基础URL
-axios.defaults.baseURL = 'http://ybb.nmroom.cn/index.php?s='
+// axios.defaults.baseURL = 'http://ybb.nmroom.cn/index.php?s='
+axios.defaults.baseURL = 'http://api.baoyiban.com/index.php?s='
 // 请求超时时间
 axios.defaults.timeout = 30000
 // axios.defaults.withCredentials = true
