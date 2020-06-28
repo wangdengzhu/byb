@@ -32,7 +32,7 @@ const userIndex = () => post('/api/user.index/detail')
 // 缺少头像
 
 // 订单列表
-const orderlist = dataType => post('/api/user.order/lists', {dataType})
+const orderlist = data => post('/api/user.order/lists', data)
 
 // 取消订单
 const cancelOrder = order_id => post('/api/order/cancelOrder', {order_id})

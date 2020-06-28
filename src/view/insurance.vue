@@ -74,9 +74,9 @@ export default {
         path: './addinsurance'
       })
     },
-    navToJoin(){
+    navToJoin () {
       console.log(this.checkItems)
-      if(this.checkItems == ''){
+      if (this.checkItems == '') {
         Toast('请选择参保人员')
         return
       }
@@ -87,7 +87,7 @@ export default {
         }
       })
     },
-    edit(id) {
+    edit (id) {
       this.$router.push({
         path: './editinfo',
         query: {
@@ -95,12 +95,12 @@ export default {
         }
       })
     },
-    delInsured(id) {
+    delInsured (id) {
       MessageBox.confirm('确定删除吗?').then(action => {
         Indicator.open()
         User.delInsured(id).then(res => {
           Indicator.close()
-          if(res.code == 1){
+          if (res.code == 1) {
             Toast('删除成功')
             setTimeout(() => {
               location.reload()
@@ -114,7 +114,7 @@ export default {
     Indicator.open()
     User.getInsuredList().then(res => {
       Indicator.close()
-      if(res.code == 1){
+      if (res.code == 1) {
         this.list = res.data
       }
     })
@@ -153,7 +153,7 @@ input[type=checkbox],input[type=radio]{
 }
 .add-btn{
   margin: .2rem auto;
-  display: block;
+  display: block!important;
   background: #f5f5f5;
   font-size: .3rem;
 }

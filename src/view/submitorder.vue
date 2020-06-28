@@ -40,29 +40,22 @@ export default {
     }
   },
   methods: {
-    submit(){
+    submit () {
       User.submitOrder(this.id).then(res => {
-        if(res.code == 1){
-          Toast('提交成功')
-          setTimeout(() => {
-            this.$router.push({
-              path: './paydetail',
-              query: {
-                id: this.id,
-                orderId: res.data.order.order_id
-              }
-            })
-          }, 2000);
-        }else{
+        if (res.code == 1) {
+          this.$router.push({
+            path: `/orderdetail?orderId=${res.data.order.order_id}&id=${res.data.insured.id}`
+          })
+        } else {
           Toast(res.msg)
         }
       })
-    },
+    }
   },
   mounted () {
     this.id = ~~this.$route.query.id
     User.insuredOrder(this.id).then(res => {
-      if(res.code == 1){
+      if (res.code == 1) {
         this.dataInfo = res.data
       }
     })
@@ -159,6 +152,5 @@ $main-color: #ef4f4f;
     }
   }
 }
-
 
 </style>

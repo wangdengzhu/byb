@@ -42,7 +42,7 @@
           <p>￥{{dataInfo.total_price}}元</p>
         </div>
       </div>
-      <div class="btn">
+      <div class="btn" v-if="dataInfo.order_status == 10 && dataInfo.pay_status == 10">
         <div @click.stop="cancel">取消订单</div>
         <div class="pay" @click="payNow">立即付款</div>
       </div>
@@ -62,7 +62,6 @@ export default {
   data () {
     return {
       pageLoad: false,
-      orderNo: '',
       orderId: 0,
       dataInfo: {},
       statusDesc: {
@@ -93,6 +92,8 @@ export default {
           if (res.code == 1) {
             Toast('取消成功')
             this.init()
+          } else {
+            Toast(res.msg)
           }
         })
       })
@@ -102,15 +103,47 @@ export default {
       User.orderPay(this.orderId).then(res => {
         Indicator.close()
         if (res.code == 1) {
-
+          this.wxpay(res)
+        } else {
+          Toast(res.msg)
         }
       })
+    },
+    // 微信支付
+    wxpay (res) {
+      let self = this
+      const {appId, timeStamp, nonceStr, signType, paySign} = res.data
+      function onBridgeReady () {
+        WeixinJSBridge.invoke(
+          'getBrandWCPayRequest', {
+            'appId': appId,
+            'timeStamp': timeStamp,
+            'nonceStr': nonceStr,
+            'package': res.data.package,
+            'signType': signType,
+            'paySign': paySign
+          },
+          function (res) {
+            if (res.err_msg == 'get_brand_wcpay_request:ok') {
+              window.location.reload()
+            }
+          })
+      }
+      if (typeof WeixinJSBridge == 'undefined') {
+        if (document.addEventListener) {
+          document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false)
+        } else if (document.attachEvent) {
+          document.attachEvent('WeixinJSBridgeReady', onBridgeReady)
+          document.attachEvent('onWeixinJSBridgeReady', onBridgeReady)
+        }
+      } else {
+        onBridgeReady()
+      }
     },
     showpop () {
       this.$refs.fund.isShowPop = true
     },
     init () {
-      this.orderNo = ~~this.$route.query.orderNo
       this.orderId = ~~this.$route.query.orderId
       this.id = ~~this.$route.query.id
       Indicator.open()
