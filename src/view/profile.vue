@@ -52,9 +52,9 @@
 import { Indicator, Toast } from 'mint-ui'
 import bottom from '@/components/bottom'
 import { mapState, mapMutations } from 'vuex'
-import store from '@/store/'
 import { Dialog } from 'vant';
 import { User } from '@/apis/'
+import {getQueryParam} from '@/utils/common'
 const phone = localStorage.getItem('phone')
 export default {
   components: {bottom},
@@ -95,7 +95,51 @@ export default {
       })
     }
   },
+  beforeCreate () {
+    let qs = getQueryParam(location.href)
+    const code = qs('code')
+    if (!code) {
+      User.login().then(res => {
+        if (res.code == 1) {
+          location.href = res.data
+        }
+      })
+    } else {
+      let token = localStorage.getItem('token')
+      if (!token) {
+        User.getUserInfo(code).then(res => {
+          if (res.code == 1) {
+            localStorage.setItem('token', res.data.token)
+            this.$router.push({
+              path: '/'
+            })
+          }
+        })
+      }
+    }
+  },
   mounted () {
+    let qs = getQueryParam(location.href)
+    const code = qs('code')
+    if (!code) {
+      User.login().then(res => {
+        if (res.code == 1) {
+          location.href = res.data
+        }
+      })
+    } else {
+      let token = localStorage.getItem('token')
+      if (!token) {
+        User.getUserInfo(code).then(res => {
+          if (res.code == 1) {
+            localStorage.setItem('token', res.data.token)
+            this.$router.push({
+              path: '/'
+            })
+          }
+        })
+      }
+    }
     this.init()
   }
 }

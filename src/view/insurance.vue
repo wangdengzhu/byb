@@ -47,6 +47,7 @@
 <script>
 import bottom from '@/components/bottom'
 import {Indicator, Toast, MessageBox} from 'mint-ui'
+import {getQueryParam} from '@/utils/common'
 import { User } from '@/apis/'
 export default {
   components: {bottom},
@@ -58,17 +59,6 @@ export default {
     }
   },
   methods: {
-    linkTo (to) {
-      if (to == 'user') {
-        this.$router.push({
-          path: './user'
-        })
-      } else {
-        this.$router.push({
-          path: './index'
-        })
-      }
-    },
     navToAdd () {
       this.$router.push({
         path: './addinsurance'
@@ -108,6 +98,29 @@ export default {
           }
         })
       })
+    }
+  },
+  beforeCreate () {
+    let qs = getQueryParam(location.href)
+    const code = qs('code')
+    if (!code) {
+      User.login().then(res => {
+        if (res.code == 1) {
+          location.href = res.data
+        }
+      })
+    } else {
+      let token = localStorage.getItem('token')
+      if (!token) {
+        User.getUserInfo(code).then(res => {
+          if (res.code == 1) {
+            localStorage.setItem('token', res.data.token)
+            this.$router.push({
+              path: '/'
+            })
+          }
+        })
+      }
     }
   },
   mounted () {

@@ -1,7 +1,7 @@
 <template>
     <div>
       <mt-tabbar fixed>
-        <mt-tab-item id="home" @click.native="linkTo('index')">
+        <mt-tab-item id="home" @click.native="linkTo('')">
           <img v-if="active1" slot="icon" src="../assets/images/home-icon1.png">
           <img v-else slot="icon" src="../assets/images/home-icon.png">
           <span :class="{active: active1}">首页</span>

@@ -32,8 +32,9 @@ axios.interceptors.response.use((response) => {
   const code = response.data.code
   if (code === 401) {
     // 对特定返回码进行预处理，比如需要登录等.
+    localStorage.removeItem('token')
     router.push({
-      path: './index'
+      path: '/'
     })
   }
   return response
