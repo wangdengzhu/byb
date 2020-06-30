@@ -56,7 +56,7 @@ const login = id => post('/api/user/login')
 const getUserInfo = code => post('/api/user/getUserInfo', {code})
 
 // 上传身份证图片
-const uploadImg = iFile => post('/api/upload/image', {iFile})
+const uploadImg = iFile => post('/api/upload/image', iFile)
 
 // 身份证图片验证
 const checkIdcard = data => post('/api/insured/checkIdcard', data)

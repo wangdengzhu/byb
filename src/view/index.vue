@@ -68,9 +68,10 @@
       </div>
     </div>
     <div class="bt">
-      <p>Copyright 2020 {{company.company_name}}</p>
       <p>地址：{{company.company_address}}</p>
       <p>电话：{{company.company_telephone}}</p>
+      <p>Copyright 2020 {{company.company_name}}</p>
+      <p>粤ICP备20052046号-1</p>
     </div>
     <bottom></bottom>
     <transition name="slide">

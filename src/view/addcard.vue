@@ -84,7 +84,7 @@ export default {
         let imageData = new FormData()
         for (let i = 0, len = files.length; i < len; i++) {
           this.imgList.push(files[i].src.split('base64,')[1])
-          imageData.append('file', files[i].file)
+          imageData.append('iFile', files[i].file)
         }
         // 上传图片
         User.uploadImg(imageData).then(res => {
@@ -101,12 +101,12 @@ export default {
         let imageData = new FormData()
         for (let i = 0, len = files.length; i < len; i++) {
           this.imgList1.push(files[i].src.split('base64,')[1])
-          imageData.append('file', files[i].file)
+          imageData.append('iFile', files[i].file)
         }
         // 上传图片
         User.uploadImg(imageData).then(res => {
           if (res.code === 1) {
-            this.id_back = res.data.id_back;
+            this.id_back = res.data.file_path;
           } else {
             Toast('上传失败')
           }
