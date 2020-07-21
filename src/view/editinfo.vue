@@ -16,7 +16,7 @@
       <div class="user-box2 flex start">
          <div class="choose-box">
           <span>出身日期：</span>
-          <span>{{dataInfo.referee_mobile}}</span>
+          <span>{{dataInfo.birth}}</span>
         </div>
       </div>
       <div class="user-box2 flex start">
@@ -29,7 +29,7 @@
          <div class="choose-box">
           <span>手机号码：</span>
           <span>
-            <input placeholder="请输入手机号码" type="tel" v-model="dataInfo.mobile">
+            <input placeholder="请输入手机号码" type="tel" v-model="dataInfo.mobile" maxlength="11">
           </span>
         </div>
       </div>
@@ -45,7 +45,7 @@
          <div class="choose-box">
           <span>推荐人手机：</span>
           <span>
-            <input placeholder="请输入推荐人手机" type="tel" v-model="dataInfo.referee_mobile">
+            <input placeholder="请输入推荐人手机" type="tel" v-model="dataInfo.referee_mobile" maxlength="11">
           </span>
         </div>
       </div>
@@ -118,8 +118,6 @@ export default {
   components: {bottom, uploader},
   data () {
     return {
-      phone: '',
-      content: '',
       imgList: [], // 已上传的图片集合
       isSubmit: false,
       options1: [
@@ -146,7 +144,6 @@ export default {
       dataInfo: {
         insured_name: '',
         idcard: '',
-        city_name: '',
         identity_name: '',
         belong_name: '',
         education_name: '',
@@ -158,14 +155,66 @@ export default {
         house_scale: '企业比例：5%，个人比例：5%'
       },
       belong: [],
+      belongId: '',
       identity: [],
-      education: []
+      identityId: '',
+      education: [],
+      educationId: ''
     }
   },
   methods: {
     submit () {
-      this.$router.push({
-        path: '/insurance'
+      if (!this.dataInfo.mobile) {
+        Toast('请填写手机号码')
+        return
+      }
+      const mobileExp = /1\d{10}/
+      if (!mobileExp.test(this.dataInfo.mobile)) {
+        Toast('请填写正确的手机号码')
+        return
+      }
+      if (this.dataInfo.referee_mobile && !mobileExp.test(this.dataInfo.referee_mobile)) {
+        Toast('请填写正确的推荐人手机号码')
+        return
+      }
+      if (this.belongId == '' || this.belongId == '请选择户籍') {
+        Toast('请选择户籍！')
+        return
+      }
+      if (this.identityId == '' || this.identityId == '请选择个人身份') {
+        Toast('请选择个人身份')
+        return
+      }
+      if (this.educationId == '' || this.educationId == '请选择学历') {
+        Toast('请选择学历')
+        return
+      }
+      const data = {
+        id: this.$route.query.id,
+        insured_name: this.dataInfo.insured_name,
+        idcard: this.dataInfo.idcard,
+        mobile: this.dataInfo.mobile,
+        sex: this.dataInfo.sex,
+        referee_name: this.dataInfo.referee_name,
+        referee_mobile: this.dataInfo.referee_mobile,
+        city_id: this.dataInfo.city_id,
+        gear_id: this.dataInfo.gear_id,
+        is_house: this.dataInfo.is_house,
+        belong_id: this.belongId,
+        identity_id: this.identityId,
+        education_id: this.educationId
+      }
+      User.editInsured(data).then(res => {
+        if (res.code == 1) {
+          Toast('修改成功')
+          setTimeout(() => {
+            this.$router.push({
+              path: '/insurance'
+            })
+          }, 2000);
+        } else {
+          Toast(res.msg)
+        }
       })
     },
     showOpinionDlg () {
@@ -173,6 +222,11 @@ export default {
     },
     onOpinionChange (picker, values) {
       this.dataInfo.belong_name = values[0]
+      this.belong.map(item => {
+        if (item.belong_name == values[0]) {
+          this.belongId = item.id
+        }
+      })
     },
     hideOpinion () {
       this.showCity = !1
@@ -185,6 +239,11 @@ export default {
     },
     onOpinionChange2 (picker, values) {
       this.dataInfo.identity_name = values[0]
+      this.identity.map(item => {
+        if (item.identity_name == values[0]) {
+          this.identityId = item.id
+        }
+      })
     },
     hideOpinion2 () {
       this.showType = !1
@@ -197,6 +256,11 @@ export default {
     },
     onOpinionChange3 (picker, values) {
       this.dataInfo.education_name = values[0]
+      this.education.map(item => {
+        if (item.ed_name == values[0]) {
+          this.educationId = item.id
+        }
+      })
     },
     hideOpinion3 () {
       this.showGrade = !1
@@ -205,7 +269,9 @@ export default {
       this.showGrade = !1
     },
     renderData(data) {
-
+      this.belongId = data.belong_id
+      this.identityId = data.identityId
+      this.educationId = data.education_id
     }
   },
   mounted () {

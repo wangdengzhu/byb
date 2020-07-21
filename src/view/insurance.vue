@@ -116,7 +116,7 @@ export default {
           if (res.code == 1) {
             localStorage.setItem('token', res.data.token)
             this.$router.push({
-              path: '/'
+              path: 'insurance'
             })
           }
         })

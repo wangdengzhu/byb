@@ -9,6 +9,9 @@ const getInsuredList = () => fetch('/api/insured/index')
 // 参保人列表信息
 const getEditInsured = id => fetch(`/api/insured/editInsured/id/${id}`)
 
+// 编辑参保信息
+const editInsured = data => post(`/api/insured/editInsured`, data)
+
 // 公共分类
 const getComCat = () => post('/api/insured/comCat')
 
@@ -68,6 +71,7 @@ export default {
   getIndexInfo,
   getInsuredList,
   getEditInsured,
+  editInsured,
   getComCat,
   delInsured,
   addInsured,

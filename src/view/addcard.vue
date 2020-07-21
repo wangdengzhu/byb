@@ -65,7 +65,7 @@ export default {
             nation: data.nation,
             birth: data.birth,
             address: data.address,
-            idcard: data.idcard
+            idcard: data.id_num
           }
           store.commit('SAVE_USERINFO', Object.assign({}, this.userInfo, obj))
           Toast('验证成功')

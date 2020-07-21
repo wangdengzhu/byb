@@ -72,6 +72,12 @@
       <p>电话：{{company.company_telephone}}</p>
       <p>Copyright 2020 {{company.company_name}}</p>
       <p>粤ICP备20052046号-1</p>
+      <div style="width:300px;margin:0 auto;">
+        <a target="_blank" href=" " style="display:inline-block;text-decoration:none;height:20px;line-height:20px;">
+          <img src="../assets/images/beian.jpg" style="float:left;"/>
+          <p style="float:left;height:20px;line-height:20px;margin: 0px 0px 0px 5px; color:#939393;">粤公网安备 44030402003874号</p >
+        </a >
+      </div>
     </div>
     <bottom></bottom>
     <transition name="slide">

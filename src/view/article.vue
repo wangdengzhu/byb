@@ -25,14 +25,14 @@ export default {
   },
   methods: {
     ...mapMutations(['SAVE_USERINFO']),
-    getData() {
+    getData () {
       Indicator.open()
       User.articleDetail(this.id).then(res => {
         Indicator.close()
-        if(res.code == 1 && res.data){
+        if (res.code == 1 && res.data) {
           document.title = res.data.title
           this.content = res.data.content.replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-          this.addtime = new Date(~~res.data.addtime).toLocaleDateString().replace(/\//g, '-')
+          this.addtime = new Date(~~res.data.addtime * 1000).toLocaleDateString().replace(/\//g, '-')
         }
       })
     }

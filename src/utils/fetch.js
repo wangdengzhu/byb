@@ -6,6 +6,7 @@ import Vue from 'vue'
 import router from '@/router'
 import axios from 'axios'
 import { Indicator, Toast } from 'mint-ui'
+import md5 from 'js-md5'
 
 // API基础URL
 // axios.defaults.baseURL = 'http://ybb.nmroom.cn/index.php?s='
@@ -21,6 +22,13 @@ axios.interceptors.request.use((config) => {
   config.headers['Content-Type'] = 'application/json'
   if (token) {
     config.headers.token = token
+    let len = config.url.split('/')
+    let url = len[len.length - 1].toLowerCase()
+    if(config.url.indexOf('editInsured') > -1) {
+      url = 'editinsured'
+    }
+    console.log(url)
+    config.headers.sign = md5(token + url).toUpperCase()
   }
   return config
 }, (error) => {
