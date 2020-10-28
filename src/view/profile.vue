@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-wrap">
+  <div class="profile-wrap" v-if="pageLoad">
     <section class="user-con">
       <div class="top">
         <img v-if="userInfo.avatarUrl" :src="userInfo.avatarUrl" alt="">
@@ -49,9 +49,9 @@
 </template>
 
 <script>
-import { Indicator, Toast } from 'mint-ui'
 import bottom from '@/components/bottom'
-import { mapState, mapMutations } from 'vuex'
+import { Indicator, Toast } from 'mint-ui'
+import { mapMutations } from 'vuex'
 import { Dialog } from 'vant';
 import { User } from '@/apis/'
 import {getQueryParam} from '@/utils/common'
@@ -60,6 +60,7 @@ export default {
   components: {bottom},
   data () {
     return {
+      pageLoad: false,
       userInfo: {},
       orderCount: {},
       phone: phone
@@ -88,6 +89,8 @@ export default {
     // 获取个人信息
     init () {
       User.userIndex().then(res => {
+        Indicator.close()
+        this.pageLoad = true
         if (res.code == 1) {
           this.userInfo = res.data.userInfo
           this.orderCount = res.data.orderCount
@@ -96,29 +99,7 @@ export default {
     }
   },
   beforeCreate () {
-    let qs = getQueryParam(location.href)
-    const code = qs('code')
-    if (!code) {
-      User.login().then(res => {
-        if (res.code == 1) {
-          location.href = res.data
-        }
-      })
-    } else {
-      let token = localStorage.getItem('token')
-      if (!token) {
-        User.getUserInfo(code).then(res => {
-          if (res.code == 1) {
-            localStorage.setItem('token', res.data.token)
-            this.$router.push({
-              path: '/'
-            })
-          }
-        })
-      }
-    }
-  },
-  mounted () {
+    Indicator.open()
     let qs = getQueryParam(location.href)
     const code = qs('code')
     if (!code) {
@@ -140,6 +121,8 @@ export default {
         })
       }
     }
+  },
+  mounted () {
     this.init()
   }
 }

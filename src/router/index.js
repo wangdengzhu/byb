@@ -101,8 +101,10 @@ const router = new Router({
     }, {
       path: '/article',
       name: '文章详情',
-      component: () => import('@/view/article')
-
+      component: () => import('@/view/article'),
+      meta: {
+        title: ''
+      }
     }
   ]
   // mode: 'history'

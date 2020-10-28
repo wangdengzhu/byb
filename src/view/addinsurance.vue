@@ -24,10 +24,9 @@
       <div class="ht20"></div>
       <div class="fund">
         <span>缴纳公积金</span>
-        <!-- <mt-switch v-model="fund" diabled @click.native="showHouse"></mt-switch> -->
-        <van-switch v-model="fund" :disabled="isDisabled" active-color="#56D674" @click="showHouse"/>
+        <van-switch v-model="fund" active-color="#56D674"/>
       </div>
-      <div v-if="!isDisabled && fund">
+      <div v-if="fund">
         <div class="fund">
           <span>公积金基数</span>
           <span>{{houseInfo.house_base}}</span>
@@ -40,8 +39,7 @@
       <div class="tips">
         <p>温馨提示：</p>
         <p>1.如曾在单位参保，参保人需要在缴费截止日期确认前单位已经减员，若因该原因导致参保失败的，服务费用不予退还。</p>
-        <p>2.保易办仅提供地代理服务，无法办理生育津贴申领服务，无法提供任何加盖公章的合同，证明，材料。</p>
-        <p>3.由于政府调整基数导致扣费金额不准确的，我们将多退少补，感谢配合。</p>
+        <p>2.由于政府调整基数导致扣费金额不准确的，我们将多退少补，感谢配合。</p>
       </div>
       <div class="btn-box">
         <mt-button class="btn-submit" type="primary" size="large" @click="submit">下一步</mt-button>
@@ -110,29 +108,18 @@ export default {
       showCity: !1,
       showGear: !1,
       dataInfo: {
-        time:{}
+        time: {}
       },
       cityInfo: [],
       cityId: 0,
-      gearInfo:[],
+      gearInfo: [],
       gearId: 0,
       houseInfo: {
-        company_cate: "5",
-        personal_cate: "5",
-        house_base: "2200",
-        service_fee: "30"
-      },
-      isDisabled: true
-    }
-  },
-  computed: {
-    showHouseInfo() {
-      if (this.city == '' || this.city == '请选择参保城市') {
-        this.isDisabled = true
-        return false
+        company_cate: '5',
+        personal_cate: '5',
+        house_base: '2200',
+        service_fee: '30'
       }
-      this.isDisabled = false
-      return true
     }
   },
   methods: {
@@ -146,7 +133,7 @@ export default {
         Toast('请选择参保类型！')
         return
       }
-      
+
       this.baseInfo = {
         city_id: this.cityId,
         gear_id: this.gearId,
@@ -163,7 +150,7 @@ export default {
     onOpinionChange (picker, values) {
       this.city = values[0]
       this.cityInfo.map(item => {
-        if(item.city_name == this.city){
+        if (item.city_name == this.city) {
           this.gearInfo = item.gear
           this.houseInfo = item.house
           this.cityId = item.id
@@ -190,12 +177,9 @@ export default {
     },
     onOpinionChange2 (picker, values) {
       this.gear = values[0]
-      if (!this.showHouseInfo) {
-        return
-      }
       this.gearInfo.map(item => {
-        if(item.gear_title == this.gear){
-          this.gearId =  item.id
+        if (item.gear_title == this.gear) {
+          this.gearId = item.id
         }
       })
     },
@@ -204,25 +188,20 @@ export default {
     },
     cnfrmOpinion2 () {
       this.showGear = !1
-    },
-    showHouse(){
-      if (!this.showHouseInfo) {
-        Toast('请先选择参保城市！')
-        return
-      }
     }
   },
-  mounted() {
+  mounted () {
     Indicator.open()
     User.getComCat().then(res => {
       Indicator.close()
-      if(res.code == 1){
+      if (res.code == 1) {
         this.dataInfo = res.data
         this.cityInfo = res.data.city
         let arr = this.cityInfo.map(item => {
           return item.city_name
         })
-        this.options[0].values = ['请选择参保城市', ...arr]
+        this.options[0].values = arr
+        this.city = arr[0]
       }
     })
   }

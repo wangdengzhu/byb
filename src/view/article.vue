@@ -11,8 +11,6 @@
 
 <script>
 import { Indicator, Toast, MessageBox } from 'mint-ui'
-import { mapState, mapMutations } from 'vuex'
-import store from '@/store/'
 import { User } from '@/apis/'
 export default {
   data () {
@@ -24,7 +22,6 @@ export default {
     }
   },
   methods: {
-    ...mapMutations(['SAVE_USERINFO']),
     getData () {
       Indicator.open()
       User.articleDetail(this.id).then(res => {
@@ -78,6 +75,10 @@ $main-color: #ef4f4f;
   }
   .content{
     padding: .3rem;
+    line-height: .46rem;
+    img{
+      width: 100%;
+    }
   }
 }
 

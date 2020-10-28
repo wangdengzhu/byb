@@ -1,5 +1,5 @@
 <template>
-  <div class="con">
+  <div class="con" v-if="pageLoad">
     <div class="empty" v-if="insuranceList.length <= 0">
       <img class="img" src="../assets/images/icon-empty.png" alt="">
       <br>
@@ -15,7 +15,7 @@
         <div class="list" v-for="(item,key) in list" :key="key">
           <div class="list-l">
             <input type="radio" v-model="checkItems" :value="item.id" :id="'cb'+key" class="cb" name="radio" >
-					  <label :for="'cb'+key"  class="iconfont icon-round"></label>
+            <label :for="'cb'+key"  class="iconfont icon-round"></label>
           </div>
           <div class="list-c">
             <div>{{item.insured_name}}： {{item.idcard}}</div>
@@ -53,6 +53,7 @@ export default {
   components: {bottom},
   data () {
     return {
+      pageLoad: false,
       insuranceList: [1],
       list: [],
       checkItems: ''
@@ -101,6 +102,7 @@ export default {
     }
   },
   beforeCreate () {
+    Indicator.open()
     let qs = getQueryParam(location.href)
     const code = qs('code')
     if (!code) {
@@ -124,8 +126,8 @@ export default {
     }
   },
   mounted () {
-    Indicator.open()
     User.getInsuredList().then(res => {
+      this.pageLoad = true
       Indicator.close()
       if (res.code == 1) {
         this.list = res.data

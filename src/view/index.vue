@@ -1,5 +1,5 @@
 <template>
-  <div class="page-wrap" v-cloak>
+  <div class="page-wrap" v-cloak v-if="pageLoad">
     <div class="top">
       <mt-swipe :auto="4000">
         <mt-swipe-item v-for="(item,i) in banner" :key="i">
@@ -87,9 +87,7 @@
 </template>
 
 <script>
-import Vue from 'vue'
 import bottom from '@/components/bottom'
-import store from '@/store/'
 import {mapState, mapMutations} from 'vuex'
 import {Indicator, Toast, MessageBox, Swipe, SwipeItem} from 'mint-ui'
 import { User } from '@/apis/'
@@ -97,6 +95,7 @@ export default {
   components: {bottom},
   data () {
     return {
+      pageLoad: false,
       banner: [],
       policy: [],
       company: {}
@@ -115,9 +114,13 @@ export default {
       })
     }
   },
+  beforeCreate () {
+    Indicator.open()
+  },
   mounted () {
     Indicator.open()
     User.getIndexInfo().then(res => {
+      this.pageLoad = true
       Indicator.close()
       if (res.code == 1) {
         this.banner = res.data.bananer
